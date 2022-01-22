@@ -1,6 +1,7 @@
 <?php
 
 namespace backend\controllers;
+use common\models\Comment;
 use Yii;
 use common\models\Video;
 use yii\base\Security;
@@ -127,14 +128,14 @@ class VideoController extends Controller
     {
         $model = $this->findModel($id);
         $oldImg=$model->poster;
-        $oldImgPath=Yii::getAlias('@frontend').'/web/storage/poster/'.$oldImg;
+        $oldImgPath=\Yii::getAlias('@frontend').'/web/storage/poster/'.$oldImg;
         if ($this->request->isPost && $model->load($this->request->post())) {
             $model->img=UploadedFile::getInstance($model,'img');
             if($model->img)
             {
 
                 $model->img=UploadedFile::getInstance($model,'img');
-                $model->img->saveAs(Yii::getAlias('@frontend').'/web/storage/poster/'.$model->img->baseName.'.'.$model->img->extension);
+                $model->img->saveAs(\Yii::getAlias('@frontend').'/web/storage/poster/'.$model->img->baseName.'.'.$model->img->extension);
                 $model->poster=$model->img->baseName.'.'.$model->img->extension;
                 if(file_exists($oldImg))
                 {
@@ -156,7 +157,12 @@ class VideoController extends Controller
             'model' => $model,
         ]);
     }
-
+    public function actionComment()
+    {
+        $userId=\Yii::$app->user->id;
+        $comment=Comment::find()->all();
+        return $this->render('comment',['model'=>$comment]);
+    }
     /**
      * Deletes an existing Video model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -185,5 +191,17 @@ class VideoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    protected function getVideoAuthor($id)
+    {
+        if(($model = Video::findOne($id)) !==null)
+        {
+            return $model->created_by;
+        }
+        else
+        {
+            throw new NotFoundHttpException('video does not exsist');
+        }
+
     }
 }

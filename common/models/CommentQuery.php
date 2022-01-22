@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use yii\web\NotFoundHttpException;
+
 /**
  * This is the ActiveQuery class for [[Comment]].
  *
